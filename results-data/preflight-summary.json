@@ -1,0 +1,47 @@
+{
+  "verdict": "DEGRADED",
+  "reason": "degraded nodes: ['computeinstance-e00c13xy8bewraavek', 'computeinstance-e00qvg0dt4s2rkwzjx']",
+  "viable_gpus": 16,
+  "healthy_nodes": [],
+  "failed_nodes": [],
+  "degraded_nodes": [
+    "computeinstance-e00c13xy8bewraavek",
+    "computeinstance-e00qvg0dt4s2rkwzjx"
+  ],
+  "storage_aggregate": {
+    "shared_fs.seq_read": {
+      "per_node_avg": 5100.4,
+      "cluster_total": 5100.4,
+      "min": 5100.4,
+      "max": 5100.4,
+      "nodes": 1
+    },
+    "shared_fs.seq_write": {
+      "per_node_avg": 389.3,
+      "cluster_total": 389.3,
+      "min": 389.3,
+      "max": 389.3,
+      "nodes": 1
+    },
+    "shared_fs.rand_read": {
+      "per_node_avg": 207.6,
+      "cluster_total": 207.6,
+      "min": 207.6,
+      "max": 207.6,
+      "nodes": 1
+    }
+  },
+  "ib_topology": {
+    "all_same_leaf": false,
+    "pairs_tested": 1
+  },
+  "run_id": "20260403-200023",
+  "timestamp": "2026-04-04T01:14:36.149462+00:00",
+  "duration_s": 556.7,
+  "reconcile_count": 1,
+  "validated_nodes": [
+    "computeinstance-e00c13xy8bewraavek",
+    "computeinstance-e00qvg0dt4s2rkwzjx"
+  ],
+  "expected_nodes": 2
+}

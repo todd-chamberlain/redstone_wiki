@@ -1,0 +1,17 @@
+{
+  "provider": "vllm",
+  "model": "Qwen3-Next-80B-MoE",
+  "serving_config": "TP=8 PP=2, Ray distributed, 16x H200, IB RDMA",
+  "gpu_count": 16,
+  "gpu_type": "NVIDIA H200",
+  "total_prompts": 50,
+  "successful": 50,
+  "failed": 0,
+  "total_tokens": 12800,
+  "tokens_per_second": 51.1,
+  "avg_latency_ms": 5005.3,
+  "p50_latency_ms": 4933.0,
+  "p95_latency_ms": 5855.3,
+  "timestamp": "2026-04-07T04:04:38.755549+00:00",
+  "overall": "PASS"
+}

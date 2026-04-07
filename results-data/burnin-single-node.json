@@ -1,0 +1,22 @@
+{
+  "node": "computeinstance-e00pwe6w4xnbfpxbx8",
+  "run_id": "20260406-234001",
+  "provider": "vllm",
+  "model": "models/qwen3-coder-next/",
+  "model_size_gb": 159.4,
+  "eval_dataset": "eval-datasets/arena-hard/",
+  "timestamp": "2026-04-07T04:40:13.355622+00:00",
+  "eval": {
+    "total_prompts": 50,
+    "successful": 50,
+    "failed": 0,
+    "total_tokens": 12800,
+    "total_latency_ms": 75398.9,
+    "avg_latency_ms": 1508.0,
+    "p50_latency_ms": 1454.1,
+    "p95_latency_ms": 1745.0,
+    "tokens_per_second": 169.8,
+    "errors": []
+  },
+  "overall": "PASS"
+}

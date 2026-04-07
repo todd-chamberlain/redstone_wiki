@@ -1,0 +1,212 @@
+{
+  "node": "computeinstance-e00qvg0dt4s2rkwzjx",
+  "run_id": "20260403-200023",
+  "timestamp": "2026-04-04T01:04:29.286664+00:00",
+  "checks": {
+    "driver_version": {
+      "expected": "580.95.05",
+      "actual": "580.95.05",
+      "pass": true,
+      "exact_match": true
+    },
+    "cuda_version": {
+      "expected": "13.0",
+      "actual": "12.4",
+      "pass": false
+    },
+    "nccl_version": {
+      "expected": "any",
+      "actual": "2.20.5",
+      "pass": true
+    },
+    "gpu_count": {
+      "expected": 8,
+      "actual": 8,
+      "pass": true
+    },
+    "ecc_status": {
+      "gpus": [
+        {
+          "gpu": 0,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 1,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 2,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 3,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 4,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 5,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 6,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 7,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "utilization": {
+      "gpus": [
+        {
+          "gpu": 0,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 76.56,
+          "power_limit_w": 700.0
+        },
+        {
+          "gpu": 1,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 76.28,
+          "power_limit_w": 700.0
+        },
+        {
+          "gpu": 2,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 79.12,
+          "power_limit_w": 700.0
+        },
+        {
+          "gpu": 3,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 76.14,
+          "power_limit_w": 700.0
+        },
+        {
+          "gpu": 4,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 77.08,
+          "power_limit_w": 700.0
+        },
+        {
+          "gpu": 5,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 76.51,
+          "power_limit_w": 700.0
+        },
+        {
+          "gpu": 6,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 75.59,
+          "power_limit_w": 700.0
+        },
+        {
+          "gpu": 7,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 75.85,
+          "power_limit_w": 700.0
+        }
+      ],
+      "pass": true
+    },
+    "temperature": {
+      "temperatures": [
+        28,
+        27,
+        29,
+        28,
+        29,
+        29,
+        30,
+        27
+      ],
+      "max": 30,
+      "threshold": 85,
+      "pass": true
+    },
+    "matmul_bench": {
+      "gpus": [
+        {
+          "gpu": 0,
+          "tflops": 775.5,
+          "threshold": 900,
+          "pass": false
+        },
+        {
+          "gpu": 1,
+          "tflops": 779.2,
+          "threshold": 900,
+          "pass": false
+        },
+        {
+          "gpu": 2,
+          "tflops": 765.7,
+          "threshold": 900,
+          "pass": false
+        },
+        {
+          "gpu": 3,
+          "tflops": 777.0,
+          "threshold": 900,
+          "pass": false
+        },
+        {
+          "gpu": 4,
+          "tflops": 757.1,
+          "threshold": 900,
+          "pass": false
+        },
+        {
+          "gpu": 5,
+          "tflops": 760.5,
+          "threshold": 900,
+          "pass": false
+        },
+        {
+          "gpu": 6,
+          "tflops": 782.7,
+          "threshold": 900,
+          "pass": false
+        },
+        {
+          "gpu": 7,
+          "tflops": 762.4,
+          "threshold": 900,
+          "pass": false
+        }
+      ],
+      "avg_tflops": 770.0,
+      "pass": false
+    }
+  },
+  "overall": "DEGRADED"
+}

@@ -1,0 +1,142 @@
+{
+  "node": "computeinstance-e00qvg0dt4s2rkwzjx",
+  "peer": "10.0.0.78",
+  "run_id": "20260403-200023",
+  "timestamp": "2026-04-04T01:11:52.676005+00:00",
+  "latency_matrix": [
+    {
+      "device": "mlx5_0",
+      "latency_us": -1,
+      "error": "parse_failed",
+      "raw": "",
+      "local_device": "mlx5_0",
+      "peer_device": "mlx5_0",
+      "local_index": 0,
+      "peer_index": 0
+    },
+    {
+      "device": "mlx5_1",
+      "latency_us": -1,
+      "error": "parse_failed",
+      "raw": "",
+      "local_device": "mlx5_1",
+      "peer_device": "mlx5_1",
+      "local_index": 1,
+      "peer_index": 1
+    },
+    {
+      "device": "mlx5_2",
+      "latency_us": -1,
+      "error": "parse_failed",
+      "raw": "",
+      "local_device": "mlx5_2",
+      "peer_device": "mlx5_2",
+      "local_index": 2,
+      "peer_index": 2
+    },
+    {
+      "device": "mlx5_3",
+      "latency_us": -1,
+      "error": "parse_failed",
+      "raw": "",
+      "local_device": "mlx5_3",
+      "peer_device": "mlx5_3",
+      "local_index": 3,
+      "peer_index": 3
+    },
+    {
+      "device": "mlx5_4",
+      "latency_us": -1,
+      "error": "parse_failed",
+      "raw": "",
+      "local_device": "mlx5_4",
+      "peer_device": "mlx5_4",
+      "local_index": 4,
+      "peer_index": 4
+    },
+    {
+      "device": "mlx5_5",
+      "latency_us": -1,
+      "error": "parse_failed",
+      "raw": "",
+      "local_device": "mlx5_5",
+      "peer_device": "mlx5_5",
+      "local_index": 5,
+      "peer_index": 5
+    },
+    {
+      "device": "mlx5_6",
+      "latency_us": -1,
+      "error": "parse_failed",
+      "raw": "",
+      "local_device": "mlx5_6",
+      "peer_device": "mlx5_6",
+      "local_index": 6,
+      "peer_index": 6
+    },
+    {
+      "device": "mlx5_7",
+      "latency_us": -1,
+      "error": "parse_failed",
+      "raw": "",
+      "local_device": "mlx5_7",
+      "peer_device": "mlx5_7",
+      "local_index": 7,
+      "peer_index": 7
+    }
+  ],
+  "bandwidth": [
+    {
+      "device": "mlx5_0",
+      "bw_gbps": -1,
+      "error": "parse_failed"
+    },
+    {
+      "device": "mlx5_1",
+      "bw_gbps": -1,
+      "error": "parse_failed"
+    },
+    {
+      "device": "mlx5_2",
+      "bw_gbps": -1,
+      "error": "parse_failed"
+    },
+    {
+      "device": "mlx5_3",
+      "bw_gbps": -1,
+      "error": "parse_failed"
+    },
+    {
+      "device": "mlx5_4",
+      "bw_gbps": -1,
+      "error": "parse_failed"
+    },
+    {
+      "device": "mlx5_5",
+      "bw_gbps": -1,
+      "error": "parse_failed"
+    },
+    {
+      "device": "mlx5_6",
+      "bw_gbps": -1,
+      "error": "parse_failed"
+    },
+    {
+      "device": "mlx5_7",
+      "bw_gbps": -1,
+      "error": "parse_failed"
+    }
+  ],
+  "topology": {
+    "error": "no valid latency measurements"
+  },
+  "thresholds": {
+    "ib_latency_us": 5,
+    "ib_bw_gbps": 390
+  },
+  "pass": {
+    "latency": true,
+    "bandwidth": true
+  },
+  "overall": "PASS"
+}

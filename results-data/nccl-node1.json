@@ -1,0 +1,37 @@
+{
+  "node": "computeinstance-e00pwe6w4xnbfpxbx8",
+  "run_id": "20260406-233101",
+  "test_mode": "intranode",
+  "gpu_count": 8,
+  "timestamp": "2026-04-07T04:31:57.500280+00:00",
+  "collectives": {
+    "all_reduce": {
+      "collective": "all_reduce",
+      "bus_bw_gbps": 480.75,
+      "alg_bw_gbps": 274.71,
+      "small_msg_latency_us": 44.43,
+      "msg_size": 8589934592,
+      "threshold": 450,
+      "pass": true
+    },
+    "all_gather": {
+      "collective": "all_gather",
+      "bus_bw_gbps": 362.61,
+      "alg_bw_gbps": 414.41,
+      "small_msg_latency_us": 1.1,
+      "msg_size": 8589934592,
+      "threshold": 340,
+      "pass": true
+    },
+    "reduce_scatter": {
+      "collective": "reduce_scatter",
+      "bus_bw_gbps": 362.81,
+      "alg_bw_gbps": 414.64,
+      "small_msg_latency_us": 1.1,
+      "msg_size": 8589934592,
+      "threshold": 340,
+      "pass": true
+    }
+  },
+  "overall": "PASS"
+}

@@ -1,0 +1,59 @@
+{
+  "node": "computeinstance-e00c13xy8bewraavek",
+  "run_id": "20260403-200023",
+  "phase": "baseline",
+  "timestamp": "2026-04-04T01:06:47.020409+00:00",
+  "tests": {
+    "shared_fs.seq_read": {
+      "name": "shared_fs.seq_read",
+      "rw": "read",
+      "bs": "1M",
+      "bw_mbps": 5100.4,
+      "iops": 5100.4,
+      "lat_us": 1568.0,
+      "threshold": 500,
+      "pass": true
+    },
+    "shared_fs.seq_write": {
+      "name": "shared_fs.seq_write",
+      "rw": "write",
+      "bs": "1M",
+      "bw_mbps": 389.3,
+      "iops": 389.3,
+      "lat_us": 20460.8,
+      "threshold": 400,
+      "pass": false
+    },
+    "shared_fs.rand_read": {
+      "name": "shared_fs.rand_read",
+      "rw": "randread",
+      "bs": "4K",
+      "bw_mbps": 207.6,
+      "iops": 53157.9,
+      "lat_us": 300.6,
+      "threshold": 5000,
+      "pass": true
+    },
+    "network_ssd.seq_read": {
+      "name": "network_ssd.seq_read",
+      "rw": "read",
+      "bs": "128K",
+      "bw_mbps": 99.5,
+      "iops": 796.2,
+      "lat_us": 5023.3,
+      "threshold": 1000,
+      "pass": false
+    },
+    "network_ssd.seq_write": {
+      "name": "network_ssd.seq_write",
+      "rw": "write",
+      "bs": "128K",
+      "bw_mbps": 98.7,
+      "iops": 789.5,
+      "lat_us": 5057.1,
+      "threshold": 1000,
+      "pass": false
+    }
+  },
+  "overall": "FAIL"
+}

@@ -1,0 +1,55 @@
+{
+  "run_id": "20260404-210611",
+  "node": "computeinstance-e00qvg0dt4s2rkwzjx",
+  "rank": 0,
+  "world_size": 8,
+  "num_nodes": 1,
+  "timestamp": "2026-04-05T02:06:26.442061+00:00",
+  "tests": {
+    "rdma": {
+      "nvidia_peermem_loaded": true,
+      "nccl_gdr_level": "5",
+      "ib_ports_active": 8,
+      "gpu_present": true,
+      "pass": true,
+      "verdict": "PASS"
+    },
+    "nccl_8gpu": {
+      "bus_bw_gbps": 480.42,
+      "verdict": "OPTIMAL",
+      "thresholds": {
+        "optimal": 470,
+        "pass": 440,
+        "floor": 350
+      }
+    },
+    "tp_intranode": {
+      "tp_size": 8,
+      "per_gpu_tflops": 668.3,
+      "aggregate_tflops": 5362.4,
+      "elapsed_s": 0.263
+    },
+    "pp_2stage": {
+      "pp_stages": 2,
+      "microbatches": 8,
+      "gpus_per_stage": 4,
+      "compute_ms": 12.78,
+      "pipeline_ms": 121.3,
+      "ideal_ms": 115.0,
+      "bubble_overhead": 0.052,
+      "verdict": "OPTIMAL"
+    },
+    "hybrid_tp4_pp2": {
+      "tp_size": 4,
+      "pp_stages": 2,
+      "microbatches": 8,
+      "stage_ms": 14.96,
+      "hybrid_ms": 145.2,
+      "ideal_ms": 134.7,
+      "bubble_overhead": 0.0722,
+      "tflops": 484.8,
+      "verdict": "OPTIMAL"
+    }
+  },
+  "overall": "PASS"
+}
