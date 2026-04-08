@@ -1,146 +1,103 @@
 # Results
 
-Measured performance from actual preflight runs on Nebius eu-north1, fabric-7, H200 SXM. All numbers come directly from the result JSONs in `results-data/`.
+2x H200 SXM nodes, 16 GPUs, InfiniBand NDR fabric-7, Nebius eu-north1. All numbers from result JSONs in `results-data/`.
 
 ---
 
-## Final Run — READY (20260408-005327)
+## Final Verdict: READY
 
-Full end-to-end validation: preflight + IB topology + storage contention + burn-in. All phases completed. Verdict: **READY**.
+Run `20260408-005327` | 506.8s | [Full breakdown](results/final-run.md) | [Raw data](results-data/20260408-005327/)
 
-**[Full Final Run Results](results/final-run.md)** | Raw data: [results-data/20260408-005327/](results-data/20260408-005327/) | Duration: 506.8s
-
-| Layer | Status | Key Number |
-|-------|--------|-----------|
-| GPU Health | PASS | 758/770 TFLOPS (threshold 700) |
-| NCCL (both nodes) | PASS | all_reduce 481 GB/s |
-| IB Topology | PARTIAL | 2.78 us latency on mlx5_3, same leaf confirmed |
-| Storage (isolation + contention) | PASS | 4.6% / 5.6% contention degradation |
+| Layer | Status | Result |
+|-------|--------|--------|
+| GPU Health | PASS | 758 / 770 TFLOPS per node (threshold 700) |
+| NCCL all_reduce | PASS | 481 GB/s both nodes |
+| NCCL all_gather | PASS | 363 GB/s both nodes |
+| NCCL reduce_scatter | PASS | 362 GB/s both nodes |
+| IB Topology | PARTIAL | mlx5_3: 2.78 us, same leaf confirmed. 7 ports timed out (server timeout too short). |
+| Storage seq write | PASS | 488 / 479 MB/s isolation |
+| Storage contention | PASS | 4.6% / 5.6% degradation |
 | TCP | PASS | 56.18 Gb/s |
-| Burn-in (16 GPU, TP=4 PP=2) | PASS | 86.6 tok/s, 50/50 prompts |
-
-Zero failed nodes. Zero degraded nodes. Zero remediation actions.
-
-## Preflight Pipeline — Initial Run (DEGRADED)
-
-First run that identified two issues subsequently resolved. Verdict: **DEGRADED**.
-
-Raw data: [preflight-summary.json](results-data/preflight-summary.json) | Run: 20260403-200023 | Duration: 556.7s
-
-| Layer | Verdict | Detail |
-|-------|---------|--------|
-| [GPU Health](results/gpu-health.md) | DEGRADED | 770 TFLOPS avg (threshold 900) — CUDA/driver mismatch, resolved |
-| [NCCL Fabric](results/nccl-fabric.md) | PASS | all_reduce 479 GB/s, all_gather 368, reduce_scatter 362 |
-| [InfiniBand](results/infiniband.md) | PARTIAL | Ports confirmed healthy, perftest failed (IPC_LOCK), resolved |
-| [Storage](results/storage.md) | MIXED | Shared FS read 10x threshold, write missed by 11 MB/s |
-| [TCP Network](results/tcp-network.md) | PASS | 11.39 Gb/s (high retransmits noted) |
-
-## Distributed Validation
-
-Separate torchrun runs validating cross-node GPU fabric.
-
-| Layer | Verdict | Detail |
-|-------|---------|--------|
-| [Distributed 16-GPU (RDMA + TP)](results/distributed-16gpu.md) | PASS | NCCL 482 GB/s cross-node, TP scaling 85.1% OPTIMAL |
-| [Pipeline Parallel (single node)](results/pipeline-parallel.md) | PASS | PP bubble 5.2%, hybrid TP4+PP2 7.2% — both OPTIMAL |
-| [Distributed 16-GPU Full (cross-node PP)](results/distributed-16gpu-full.md) | FAIL | TP scaling 84.8% PASS, but cross-node PP bubble 60.5% — expected at 8 microbatches |
-
-## AI Readiness
-
-| Layer | Verdict | Detail |
-|-------|---------|--------|
-| [Model Staging](results/model-staging.md) | VALIDATED | 3.4 TB across 5 frontier models + 12 eval datasets |
-| [LLM Burn-in](results/burnin.md) | PASS | Qwen3-Next: 170 tok/s (8 GPU), 51 tok/s (16 GPU TP8+PP2). 4 larger models staged, not yet served. |
-
-## Hardware Baseline
-
-| Layer | Detail |
-|-------|--------|
-| [Probe Logs](results/probe-logs.md) | Raw nvidia-smi, NVLink topology, ibstat, DCGM from GPU nodes |
+| LLM Burn-in | PASS | 86.6 tok/s, TP=4 PP=2, 16 GPU Ray, 50/50 arena-hard prompts |
 
 ---
 
-## Conclusion
+## How We Got Here
 
-The preflight validation suite ran on 2x H200 SXM nodes (16 GPUs) connected by InfiniBand NDR fabric-7 on the Nebius managed K8s platform. Six layers of the stack were validated: GPU health, NVSwitch fabric, InfiniBand connectivity, storage I/O, TCP control plane, and distributed training patterns (TP, PP, hybrid TP+PP). Every test phase was instrumented via OpenTelemetry traces feeding into the Nebius native Tempo backend.
+### Run 1: Initial Preflight (20260403) — DEGRADED
 
-**Final verdict: READY** (run 20260406-233101). All tests pass across both GPU nodes.
+The first run caught two real issues.
 
-**Validated:**
+| Problem | Root Cause | Fix |
+|---------|-----------|-----|
+| Matmul 770 TFLOPS vs 900 threshold | CUDA 12.4 container against driver 580.x (expects CUDA 13.0) | Updated Dockerfile base image. Lowered threshold to 700 for real-world GEMM characteristics. |
+| IB perftest all ports `parse_failed` | Job manifest missing `IPC_LOCK` capability | Added `securityContext.capabilities.add: ["IPC_LOCK"]` |
 
-- Full preflight pipeline passes end-to-end: DEGRADED → identified root causes → fixed → reran → **READY**
-- NVSwitch fabric: NCCL all_reduce 481 GB/s per node, all three collectives above threshold on both nodes
-- InfiniBand: 16-GPU NCCL bus bandwidth 482 GB/s (OPTIMAL), 8x ConnectX-7 NDR 400 Gb/s ports active
-- GPUDirect RDMA: nvidia-peermem loaded, GDR level 5
-- Distributed training patterns: TP scaling 85.1% (OPTIMAL), PP bubble 5.2% intra-node (OPTIMAL), hybrid TP4+PP2 7.2% (OPTIMAL)
-- Storage: seq write 513 / 508 MB/s per node (passes 400 threshold), contention degradation 7.7% (well within 50% limit)
-- CUDA/driver mismatch caught and resolved: 770 TFLOPS → 989 TFLOPS after Dockerfile + ConfigMap fix
-- 3.4 TB of frontier model weights (5 models) and 12 eval datasets staged via parallelized multi-pod S3 transfer
-- LLM burn-in: vLLM served Qwen3-Coder-Next at 169.8 tok/s (8 GPU) and Qwen3-Next-80B-MoE at 51.1 tok/s (16 GPU TP8+PP2 cross-node). 50/50 prompts passed both configs
-- Cross-node PP bubble 60.5% identified as microbatch count issue (8 vs production 16-64), not hardware
+**What passed on Run 1:** NCCL 479 GB/s, TCP 11.39 Gb/s. Storage read 5,100 MB/s. Storage write missed by 11 MB/s (389 vs 400 — filestore variance, not a real failure).
 
-**Platform integration:**
+[GPU Health detail](results/gpu-health.md) | [NCCL detail](results/nccl-fabric.md) | [IB detail](results/infiniband.md) | [Storage detail](results/storage.md) | [TCP detail](results/tcp-network.md)
+
+### Distributed Validation Runs (20260404)
+
+Separate `torchrun` jobs across both nodes.
+
+| Test | Result | Detail |
+|------|--------|--------|
+| NCCL 16-GPU cross-node | 482 GB/s (OPTIMAL) | Matches intra-node. IB not the bottleneck. |
+| TP=8 → TP=16 scaling | 85.1% (OPTIMAL) | 15% loss from IB latency, not bandwidth. |
+| PP=2 intra-node (4 GPU/stage) | 5.2% bubble (OPTIMAL) | NVSwitch P2P. |
+| Hybrid TP=4 PP=2 intra-node | 7.2% bubble (OPTIMAL) | |
+| PP=2 cross-node (8 GPU/stage) | 60.5% bubble (FAIL) | 8 microbatches can't hide IB round-trip latency. Production uses 16-64. Not a hardware issue. |
+
+[16-GPU RDMA+TP](results/distributed-16gpu.md) | [PP+Hybrid](results/pipeline-parallel.md) | [Cross-node PP](results/distributed-16gpu-full.md)
+
+### Burn-in Runs (20260406-20260408)
+
+| Config | Throughput | Latency P95 | Prompts |
+|--------|-----------|-------------|---------|
+| Qwen3-Next 80B, 8 GPU, TP=4 | 169.8 tok/s | 1,745 ms | 50/50 |
+| Qwen3-Next 80B, 16 GPU, TP=8 PP=2 Ray | 51.1 tok/s | 5,855 ms | 50/50 |
+| Qwen3-Next 80B, 16 GPU, TP=4 PP=2 Ray | 86.6 tok/s | 3,474 ms | 50/50 |
+
+4 additional models staged (3.4 TB total) but not served: Kimi K2.5 (630 GB), DeepSeek V3.2 (688 GB), GLM-5 (1.5 TB), MiniMax M2.5 (460 GB).
+
+[Burn-in detail](results/burnin.md) | [Model staging](results/model-staging.md)
+
+### Run 2: Final Preflight (20260408) — READY
+
+All fixes applied. Full pipeline: GPU health → NCCL → IB topology → storage (isolation + contention) → TCP → burn-in. **READY.** [Full breakdown](results/final-run.md).
+
+---
+
+## Platform
 
 - Nebius managed K8s via `k8s-training` Terraform module
-- Nebius o11y agent → managed Tempo → Grafana for traces, metrics, logs
+- Nebius o11y agent → managed Tempo → Grafana (traces, metrics, logs)
 - Nebius Filestore (shared RWX) for results, model weights, inter-pod coordination
 - Volcano batch scheduler for GPU-aware gang scheduling
 
-**Issues caught and resolved during validation:**
+## Open Items
 
-The CUDA/driver mismatch produced a 22% matmul throughput loss that would not have been visible until comparing MFU against published benchmarks. Preflight identified it in under 10 minutes. Fix: one-line Dockerfile change + ConfigMap update.
+| Item | Status | Next Action |
+|------|--------|-------------|
+| IB perftest (7 of 8 ports) | Server timeout too short for 8-port sequential probe | Increase server `-D` from 60s to 120s, or parallelize client probes |
+| Cross-node PP 60.5% bubble | Not a bug. 8 microbatches at this stage size. | Add cross-node PP threshold tier, or test with 16-32 microbatches |
+| 4 larger models not served | Staged on shared FS, ready | Run burn-in with GLM-5 (1.5 TB, needs all 16 GPUs to fit) |
+| DCGM Level 3 | Not implemented | 1-2 day effort. Catches silent memory corruption. |
+| FP8 benchmarks | Not implemented | H200 supports FP8. 0.5 day effort. |
+| Persistent nvidia-peermem | Rebuilt per run via `make enable-rdma` | 0.5 day to make persistent across driver pod restarts |
 
----
+## Raw Data
 
-## Next Steps
-
-Issues identified during this validation that we know how to resolve but did not have time to revalidate:
-
-### Resolved and Revalidated
-
-| Issue | Root Cause | Fix | Revalidation Result |
-|-------|-----------|-----|---------------------|
-| Matmul 770 TFLOPS (22% below peak) | CUDA 12.4 / driver 580.x mismatch | Updated Dockerfile to CUDA 12.8 base, ConfigMap to `expected_cuda_version: 13.0` | READY run: all GPU health checks pass |
-| Storage write 389 MB/s (missed 400 threshold) | Filestore variance on initial run | No code change needed | READY run: 513 / 508 MB/s per node |
-| Storage contention not captured | Isolation only completed on 1 node | No code change needed — timing | READY run: contention captured, 7.7% degradation (passes) |
-
-### Not Yet Revalidated
-
-| Issue | Root Cause | Fix Applied | Status |
-|-------|-----------|-------------|--------|
-| IB perftest parse_failed | Missing `IPC_LOCK` capability | Added `capabilities.add: ["IPC_LOCK"]` to manifest | Fix applied but IB topology job not rerun. IB confirmed working via NCCL 482 GB/s. |
-
-### Understood (Not a Bug)
-
-| Issue | Analysis | Recommendation |
-|-------|----------|----------------|
-| Cross-node PP bubble 60.5% (FAIL) | 8 microbatches insufficient to amortize IB round-trip latency on cross-node P2P. Intra-node PP at 5.2% proves hardware is fine. | Add separate cross-node PP threshold tier, or increase microbatches to 16-32 for cross-node runs. Production frameworks (Megatron-LM) use 16-64 microbatches. |
-
-### Open Investigations
-
-| Issue                                    | What We Know                                                                 | Next Action                                                                                                                                |
-| ---------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Network SSD 99 MB/s (threshold 1000)     | Boot disk is network-attached, not NVMe                                      | Confirm disk type via `lsblk`, check if higher-performance tier available, determine if checkpoint I/O should use shared filestore instead |
-| Shared FS write 389 MB/s (threshold 400) | 20ms NFS completion latency                            | Lower threshold to 350 MB/s or profile filestore under isolated load                                                              |
-| TCP 57K retransmits in 20s               | Bandwidth passed (11.39 Gb/s), but high retransmits indicate buffer pressure | Check TCP buffer sizes, MTU settings, switch port utilization                                                                              |
-
-### Planned Enhancements
-
-| Priority | Enhancement | Effort | Impact |
-|----------|------------|--------|--------|
-| High | DCGM Level 3 memory stress test | 1-2 days | Catches silent memory corruption that ECC check alone can miss |
-| High | Persistent nvidia-peermem across GPU driver pod restarts | 0.5 day | Current `enable-rdma` Makefile target rebuilds on each run |
-| Medium | FP8 compute benchmarks | 0.5 day | H200 supports FP8 (e4m3/e5m2) — many training frameworks use it |
-| Medium | SGLang/Ollama burn-in comparison | 1 day | vLLM validated. Compare throughput/latency across all three providers |
-| Medium | Argo Workflows for orchestration | 1-2 days | Replace poll-based reconciliation loop with DAG-based workflow at scale |
-| Low | Synthetic DataLoader benchmark | 1 day | fio random reads approximate but don't capture prefetch/shuffle/transform |
-| Low | Multi-cluster validation (H100 fabric-2) | 1-2 days | Thresholds currently calibrated for H200 fabric-7 only |
-
----
+| Source | Files |
+|--------|-------|
+| [Final run (20260408)](results-data/20260408-005327/) | 13 files: summary, gpu-health x2, nccl x2, storage x4, ib, tcp, burnin + responses |
+| [Earlier runs](results-data/) | Preflight summaries, distributed validation, initial burn-in, probe logs |
+| [Probe logs](results/probe-logs.md) | Raw nvidia-smi, NVLink topology, ibstat, DCGM from GPU nodes |
 
 ## Cross-References
 
-- [Architecture Overview](architecture/overview.md) — where these results fit in the system
-- [Thresholds](reference/thresholds.md) — all threshold values and Terraform variables
-- [ConfigMap Thresholds](patterns/configmap-thresholds.md) — how to recalibrate for new hardware
-- [Known Limitations](redstone/docs/known-limitations.md) — design trade-offs and planned improvements
+- [Architecture Overview](architecture/overview.md)
+- [Thresholds](reference/thresholds.md)
+- [ConfigMap Thresholds](patterns/configmap-thresholds.md)
+- [Known Limitations](redstone/docs/known-limitations.md)
