@@ -140,7 +140,7 @@ class SGLangProvider(InferenceProvider):
                 return False
 ```
 
-The dual health check pattern exists because SGLang versions are inconsistent about exposing `/health`. Older versions only have `/v1/models`. Rather than pinning to a specific SGLang version, the provider tries `/health` first (fast path) and falls back to `/v1/models`. Resilient across SGLang upgrades.
+The dual health check pattern exists because SGLang versions are inconsistent about exposing `/health`. Older versions only have `/v1/models`. Rather than pinning to a specific SGLang version, the provider tries `/health` first (fast path) and falls back to `/v1/models`. Works across SGLang upgrades without changes.
 
 ## OllamaProvider
 

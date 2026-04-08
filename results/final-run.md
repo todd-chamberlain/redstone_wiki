@@ -1,4 +1,4 @@
-# Final Comprehensive Run (20260408-005327)
+# Final Run (20260408-005327)
 
 **Verdict: READY** — All tests passed. Both nodes on same leaf switch. Duration: 506.8s.
 
@@ -88,7 +88,7 @@ Source: [storage-node0-isolation.json](../results-data/20260408-005327/storage-n
 | Node 0 | 488 MB/s | 466 MB/s | **4.6%** | 50% |
 | Node 1 | 479 MB/s | 452 MB/s | **5.6%** | 50% |
 
-Storage contention well-controlled. The shared filesystem handles concurrent access from both nodes with minimal degradation.
+Storage contention under 6% on both nodes, well within the 50% threshold.
 
 ---
 
@@ -103,7 +103,7 @@ Source: [tcp.json](../results-data/20260408-005327/tcp.json)
 | Streams | 4 |
 | Duration | 20s |
 
-Significant improvement over earlier run (11.39 Gb/s). Different node pair and potentially different network path.
+5x higher than the earlier run (11.39 Gb/s). Different node pair and likely different network path.
 
 ---
 

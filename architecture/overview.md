@@ -1,10 +1,10 @@
 # Architecture Overview
 
-Redstone is a GPU cluster preflight validation suite that runs automated hardware and software checks before training workloads start. It validates the full stack — from individual GPU health through NVLink fabric, InfiniBand topology, shared storage, and TCP control plane — then emits a READY/DEGRADED/NOT_READY verdict.
+Redstone is a GPU cluster preflight validation suite that runs automated hardware and software checks before training workloads start. It validates the full stack: individual GPU health, NVLink fabric, InfiniBand topology, shared storage, and TCP control plane. The result is a READY/DEGRADED/NOT_READY verdict.
 
 ## Why It Exists
 
-GPU training clusters are complex: 8 GPUs per node connected via NVSwitch, nodes linked over InfiniBand fat trees, shared NFS for checkpoints, and a Kubernetes control plane coordinating everything. Any failure in this stack — a bad GPU, a miscabled IB port, a slow filesystem — silently degrades training throughput or causes hard failures hours into a run.
+GPU training clusters are complex: 8 GPUs per node connected via NVSwitch, nodes linked over InfiniBand fat trees, shared NFS for checkpoints, and a Kubernetes control plane coordinating everything. A bad GPU, a miscabled IB port, or a slow filesystem silently degrades training throughput or causes hard failures hours into a run.
 
 ## Cluster Topology
 

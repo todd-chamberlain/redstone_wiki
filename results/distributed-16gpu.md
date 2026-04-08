@@ -15,7 +15,7 @@ Source: [distributed-16gpu-rdma.json](../results-data/distributed-16gpu-rdma.jso
 
 ## Analysis
 
-The cross-node NCCL 16-GPU bus bandwidth (481.72 GB/s) actually slightly exceeded the intra-node 8-GPU result (480.66 GB/s) — confirming that with 8x NDR IB ports, the fabric does not bottleneck all-reduce at large message sizes.
+The cross-node NCCL 16-GPU bus bandwidth (481.72 GB/s) slightly exceeded the intra-node 8-GPU result (480.66 GB/s). With 8x NDR IB ports, the fabric does not bottleneck all-reduce at large message sizes.
 
 TP scaling ratio of 85.1% means cross-node TP=16 retains 85% of the per-GPU throughput compared to intra-node TP=8. The 15% loss comes from IB round-trip latency on the all-reduce, not bandwidth limitation.
 

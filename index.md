@@ -64,7 +64,7 @@ Measured performance from actual preflight runs — broken down by stack layer.
 
 | Page | Verdict | Detail |
 |------|---------|--------|
-| **[Results Overview](results.md)** | **READY** | Comprehensive final run passes all phases |
+| **[Results Overview](results.md)** | **READY** | Final run passes all phases |
 | **[Final Run (20260408)](results/final-run.md)** | **READY** | GPU, NCCL, IB, storage contention, TCP, burn-in — all pass |
 | [GPU Health](results/gpu-health.md) | PASS | 758/770 TFLOPS (threshold 700) |
 | [NCCL Fabric](results/nccl-fabric.md) | PASS | all_reduce 481 GB/s per node |

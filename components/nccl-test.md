@@ -99,7 +99,7 @@ def get_threshold(collective: str) -> float:
     return CONFIG.get(key, CONFIG.get("nccl_bw_gbps_threshold", 400))
 ```
 
-This fallback chain lets the system upgrade gracefully. Clusters that already have a working config with a single threshold will not break when the code starts looking for per-collective keys.
+This fallback chain avoids breaking existing configs. Clusters that already have a single threshold will not break when the code starts looking for per-collective keys.
 
 ---
 

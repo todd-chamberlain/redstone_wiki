@@ -1,6 +1,6 @@
 # Multi-Provider Inference
 
-The burn-in test supports three LLM inference providers behind a common interface, enabling hardware validation with different serving engines.
+The burn-in test supports three LLM inference providers behind a common interface. Any of the three engines can validate the hardware.
 
 ## Provider Architecture
 

@@ -4,7 +4,7 @@ Measured performance from actual preflight runs on Nebius eu-north1, fabric-7, H
 
 ---
 
-## Comprehensive Final Run — READY (20260408-005327)
+## Final Run — READY (20260408-005327)
 
 Full end-to-end validation: preflight + IB topology + storage contention + burn-in. All phases completed. Verdict: **READY**.
 

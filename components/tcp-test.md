@@ -2,7 +2,7 @@
 
 ## Purpose
 
-GPU training clusters have two distinct network planes. The **data plane** -- InfiniBand -- carries the massive gradient and activation traffic between GPUs. The **control plane** -- standard TCP/Ethernet -- carries everything else: `kubectl` commands, Prometheus metric scraping, OpenTelemetry trace exports, health checks, and orchestration signals.
+GPU training clusters have two distinct network planes. The **data plane** (InfiniBand) carries gradient and activation traffic between GPUs. The **control plane** (TCP/Ethernet) carries everything else: `kubectl` commands, Prometheus metric scraping, OpenTelemetry trace exports, health checks, and orchestration signals.
 
 iperf3 runs between node pairs to confirm TCP bandwidth is sufficient for these operational services. The threshold is intentionally modest (10 Gb/s) because this path does not carry training data. But degraded TCP connectivity means the cluster loses observability and manageability.
 

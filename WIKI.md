@@ -1,6 +1,6 @@
 # Redstone Wiki — Schema & Conventions
 
-Code-indexed knowledge map for the **redstone** GPU cluster preflight validation suite, inspired by [Karpathy's LLM Knowledge Base pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) — a persistent, cross-referenced markdown knowledge base designed for Obsidian. The wiki lives upstream of the redstone codebase — redstone is pulled in as a git submodule at `redstone/`.
+Code-indexed knowledge map for the **redstone** GPU cluster preflight validation suite, inspired by [Karpathy's LLM Knowledge Base pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). A persistent, cross-referenced markdown knowledge base designed for Obsidian. The wiki lives upstream of the redstone codebase; redstone is pulled in as a git submodule at `redstone/`.
 
 ## Getting Started
 

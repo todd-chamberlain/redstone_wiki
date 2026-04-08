@@ -137,7 +137,7 @@ The check covers:
 
 2. **IB ports active** -- an H200 node has 8 InfiniBand ports (mlx5_0 through mlx5_7), each rated at 400 Gb/s NDR. All 8 should be in "Active" state. Fewer active ports means some NICs failed to link, which reduces available cross-node bandwidth.
 
-3. **Demand loading** -- if peermem is not loaded, the check tries `modprobe nvidia-peermem`. Handles the case where the module was built but not auto-loaded at boot. If the modprobe fails with "Invalid argument", the diagnosis is specific: the NVIDIA GPU operator driver version and the network operator's MOFED version have an ABI mismatch. Common issue when GPU and network operators are upgraded independently -- peermem is compiled against a specific driver ABI, and a version skew makes them incompatible.
+3. **Demand loading**: if peermem is not loaded, the check tries `modprobe nvidia-peermem`. Handles the case where the module was built but not auto-loaded at boot. If the modprobe fails with "Invalid argument", the diagnosis is specific: the NVIDIA GPU operator driver version and the network operator's MOFED version have an ABI mismatch. Common when GPU and network operators are upgraded independently, since peermem is compiled against a specific driver ABI.
 
 The pass condition requires both peermem loaded AND at least 8 active IB ports. Having peermem without IB ports (or vice versa) is still a failure.
 

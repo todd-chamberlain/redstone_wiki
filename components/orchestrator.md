@@ -229,7 +229,7 @@ Key manifest choices:
 
 3. **`nodeSelector` pinning** -- Each Job is pinned to a specific node by hostname. This guarantees the test runs on the node it is meant to validate.
 
-The function handles the 409 Conflict (job already exists) gracefully, which matters during reconciliation loop retries:
+The function handles the 409 Conflict (job already exists) without failing, which matters during reconciliation loop retries:
 
 ```python
         try:
