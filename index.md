@@ -76,7 +76,7 @@ Measured performance from actual preflight runs — broken down by stack layer.
 | [Distributed 16-GPU](results/distributed-16gpu.md) | OPTIMAL | NCCL 482 GB/s cross-node, TP scaling 85.1% |
 | [Pipeline Parallel](results/pipeline-parallel.md) | OPTIMAL | PP bubble 5.2%, hybrid 7.2% |
 | [Probe Logs](results/probe-logs.md) | | Raw hardware inventory from GPU nodes |
-| **[Conclusion + Next Steps](results.md#conclusion)** | | What we proved, what we caught, what's next |
+| **[Open Items + Next Steps](results.md#open-items)** | | What we proved, what we caught, what's next |
 
 ## Reference
 

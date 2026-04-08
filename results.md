@@ -55,7 +55,7 @@ Separate `torchrun` jobs across both nodes.
 
 | Config | Throughput | Latency P95 | Prompts |
 |--------|-----------|-------------|---------|
-| Qwen3-Next 80B, 8 GPU, TP=4 | 169.8 tok/s | 1,745 ms | 50/50 |
+| Qwen3-Next 80B, 8 GPU, TP=4 | 169.8 tok/s | 1,744 ms | 50/50 |
 | Qwen3-Next 80B, 16 GPU, TP=8 PP=2 Ray | 51.1 tok/s | 5,855 ms | 50/50 |
 | Qwen3-Next 80B, 16 GPU, TP=4 PP=2 Ray | 86.6 tok/s | 3,474 ms | 50/50 |
 

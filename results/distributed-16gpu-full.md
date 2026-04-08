@@ -6,15 +6,15 @@ Full distributed validation run including PP and hybrid TP+PP across 2 nodes (vs
 
 ## Results
 
-| Test | Measured | Verdict |
-|------|----------|---------|
-| RDMA (nvidia-peermem) | Loaded, GDR level 5, 8 IB ports | PASS |
-| NCCL 8-GPU intra-node | 481.31 GB/s bus BW | OPTIMAL |
-| TP=8 intra-node | 668.2 TFLOPS/GPU | — |
-| TP=16 cross-node | 566.6 TFLOPS/GPU | — |
-| TP scaling (TP16/TP8) | 0.848 (84.8%) | PASS |
-| PP=2 (8 GPU/stage, cross-node) | 60.5% bubble overhead | FAIL |
-| Hybrid TP=8 PP=2 (cross-node) | 57.6% bubble overhead | FAIL |
+| Test                           | Measured                        | Verdict |
+| ------------------------------ | ------------------------------- | ------- |
+| RDMA (nvidia-peermem)          | Loaded, GDR level 5, 8 IB ports | PASS    |
+| NCCL 8-GPU intra-node          | 481.31 GB/s bus BW              | OPTIMAL |
+| TP=8 intra-node                | 668.2 TFLOPS/GPU                | —       |
+| TP=16 cross-node               | 566.6 TFLOPS/GPU                | —       |
+| TP scaling (TP16/TP8)          | 0.848 (84.8%)                   | PASS    |
+| PP=2 (8 GPU/stage, cross-node) | 60.5% bubble overhead           | FAIL    |
+| Hybrid TP=8 PP=2 (cross-node)  | 57.6% bubble overhead           | FAIL    |
 
 Overall: **FAIL**
 

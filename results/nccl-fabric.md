@@ -1,6 +1,6 @@
 # NCCL Fabric Results
 
-## Final Run (20260406-233101) — Both Nodes
+## Run 2 (20260406-233101) — Both Nodes
 
 Source: [nccl-node0.json](../results-data/nccl-node0.json) | [nccl-node1.json](../results-data/nccl-node1.json) | Mode: intranode (NCCL_IB_DISABLE=1) | 8 GPUs per node
 

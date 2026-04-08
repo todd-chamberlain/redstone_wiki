@@ -41,6 +41,27 @@ Source: [burnin-16gpu-tp8pp2.json](../results-data/burnin-16gpu-tp8pp2.json) | P
 
 Cross-node vLLM serving with TP=8 (intra-node) + PP=2 (cross-node) via Ray. Throughput drops from 169.8 to 51.1 tokens/s when adding the pipeline parallel stage across IB — expected, since PP introduces bubble overhead and the cross-node P2P activation transfer adds latency per token. All 50 prompts completed successfully. The full stack exercised: model loading from shared FS, GPU memory allocation, IB RDMA for cross-node PP, and inference serving.
 
+## Qwen3-Coder-Next (16 GPU, TP=4 PP=2) — Final Run
+
+Source: [burnin.json](../results-data/20260408-005327/burnin.json) | Run: 20260408-005327 | Provider: vLLM
+
+| Metric | Value |
+|--------|-------|
+| Model | Qwen3-Coder-Next (80B MoE, 159.4 GB) |
+| Serving config | TP=4 PP=2, 16x GPU, Ray distributed, IB RDMA |
+| GPU count | 16 (2 nodes) |
+| Eval dataset | arena-hard |
+| Prompts | 50/50 successful, 0 failed |
+| Tokens generated | 12,800 |
+| Throughput | **86.6 tokens/s** |
+| Avg latency | 2,955 ms |
+| P50 latency | 2,815 ms |
+| P95 latency | 3,474 ms |
+
+**Verdict: PASS**
+
+TP=4 PP=2 across 16 GPUs via Ray with IB RDMA. 86.6 tok/s — 70% faster than the TP=8 PP=2 configuration (51.1 tok/s) because TP=4 halves the all-reduce communication volume within each pipeline stage while PP=2 still distributes across both nodes. This was the final run's burn-in configuration, validating the complete stack end-to-end.
+
 ## Models Staged but Not Served
 
 The remaining 4 models are staged on the shared filesystem and ready for burn-in, but were not served during this validation window:
