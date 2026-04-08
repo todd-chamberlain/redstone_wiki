@@ -9,7 +9,7 @@ All K8s manifests for the preflight and burn-in suites.
 | `namespace.yaml` | Namespace | `redstone` namespace |
 | `rbac.yaml` | SA, ClusterRole, Role, Bindings | `redstone-runner` service account |
 | `gpu-health-daemonset.yaml` | DaemonSet | GPU health on all GPU nodes |
-| `orchestrator-job.yaml` | Job | Orchestrator on CPU node |
+| `orchestrator-job.yaml` | Job | Orchestrator on GPU node (image caching, no GPU requests) |
 | `distributed-validate-job.yaml` | Job (Indexed) | torchrun across all GPU nodes |
 | `cronjob.yaml` | CronJob | Daily scheduled preflight (04:00 UTC) |
 | `nccl-intranode-job.yaml` | Job | NCCL per-node (standalone) |

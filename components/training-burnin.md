@@ -87,44 +87,87 @@ class VLLMProvider(InferenceProvider):
     def start(self) -> subprocess.Popen:
         import torch
         num_gpus = torch.cuda.device_count()
+        tp_size = int(os.environ.get("VLLM_TP_SIZE", min(num_gpus, 4)))
 
         cmd = [
-            "python", "-m", "vllm.entrypoints.openai.api_server",
-            "--model", self.model_dir,
+            "vllm", "serve", self.model_dir,
             "--host", SERVER_HOST,
             "--port", str(SERVER_PORT),
-            "--tensor-parallel-size", str(num_gpus),
+            "--served-model-name", Path(self.model_dir).name,
+            "--tensor-parallel-size", str(tp_size),
             "--trust-remote-code",
             "--dtype", "auto",
+            "--gpu-memory-utilization", "0.8",
+            "--disable-custom-all-reduce",
+            "--enable-prefix-caching",
         ]
+        # Add any extra args from environment
+        extra = os.environ.get("VLLM_EXTRA_ARGS", "")
+        if extra:
+            cmd.extend(extra.split())
         self.process = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            cmd, stdout=sys.stdout, stderr=sys.stderr,
         )
         return self.process
+
+    def model_name(self):
+        return Path(self.model_dir).name
 ```
 
-The `--tensor-parallel-size` is set to the total GPU count on the node (8 for H200 SXM nodes). The model is sharded across all available GPUs automatically. The `--dtype auto` flag lets vLLM pick the optimal dtype from the model config (usually bfloat16 for H200s). Since vLLM exposes an OpenAI-compatible API at `/v1/completions` and a `/health` endpoint, the base class `generate()` and `health_check()` work without modification.
+Several important changes from the older approach:
+
+1. **`vllm serve` CLI** instead of `python -m vllm.entrypoints.openai.api_server`. The `vllm serve` command is the modern entry point since vLLM 0.4+, handling argument parsing and model loading more robustly.
+
+2. **Tensor-parallel size** is controlled by the `VLLM_TP_SIZE` environment variable, defaulting to `min(num_gpus, 4)` rather than the full GPU count. On 8-GPU nodes, TP=4 is often more efficient than TP=8 for models that fit in 4 GPUs, because the all-reduce overhead scales with the number of participants.
+
+3. **`--served-model-name`** is set to the model directory basename. This means the OpenAI API uses a clean model name (like `Llama-3-70B`) rather than a full filesystem path in the `model` field.
+
+4. **`--gpu-memory-utilization 0.8`** reserves 20% of GPU memory for KV cache growth and other overhead, preventing OOM when the model is close to the memory limit.
+
+5. **`--disable-custom-all-reduce`** uses NCCL's native all-reduce instead of vLLM's custom implementation. This is more reliable on unfamiliar hardware configurations during burn-in, even if slightly slower.
+
+6. **`--enable-prefix-caching`** allows vLLM to cache common prompt prefixes across requests, improving throughput for eval datasets with similar prompts.
+
+7. **`VLLM_EXTRA_ARGS`** environment variable allows operators to inject additional flags without modifying the code -- useful for testing quantization settings, speculative decoding, or other experimental features.
+
+8. **Server output goes to stdout/stderr** (`stdout=sys.stdout, stderr=sys.stderr`) instead of being captured to pipes. This ensures vLLM's startup logs and any crash output are visible in the pod logs for debugging.
+
+## External Server Detection
+
+In multi-node mode, the YAML manifest starts vLLM before this script runs. The burn-in script detects this by checking the health endpoint before attempting to start a local server:
+
+```python
+external_server = provider.health_check()
+if external_server:
+    print(f"\n--- Server already running (multi-node mode) ---")
+else:
+    provider.start()
+    ready = provider.wait_ready(timeout=600)
+```
+
+If a server is already running (multi-node mode with Ray distributed inference), the script skips the startup phase entirely and proceeds directly to evaluation. When the eval completes, it also skips the `provider.stop()` call to avoid killing the externally managed server.
 
 ## SGLangProvider
 
-SGLang is mostly identical in structure but has one quirk in health checking:
+SGLang is mostly identical in structure but uses `sys.executable` to launch the server module and has its own TP size env var:
 
 ```python
 class SGLangProvider(InferenceProvider):
     def start(self) -> subprocess.Popen:
         import torch
         num_gpus = torch.cuda.device_count()
+        tp_size = int(os.environ.get("SGLANG_TP_SIZE", min(num_gpus, 4)))
 
         cmd = [
-            "python", "-m", "sglang.launch_server",
+            sys.executable, "-m", "sglang.launch_server",
             "--model-path", self.model_dir,
             "--host", SERVER_HOST,
             "--port", str(SERVER_PORT),
-            "--tp", str(num_gpus),
+            "--tp", str(tp_size),
             "--trust-remote-code",
         ]
         self.process = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            cmd, stdout=sys.stdout, stderr=sys.stderr,
         )
         return self.process
 
@@ -139,6 +182,8 @@ class SGLangProvider(InferenceProvider):
             except Exception:
                 return False
 ```
+
+Two differences from vLLM: SGLang uses `sys.executable` instead of a bare `python` to ensure it uses the same Python environment as the calling script (avoids venv/conda path issues). The TP size is controlled by `SGLANG_TP_SIZE` with the same `min(num_gpus, 4)` default.
 
 The dual health check pattern exists because SGLang versions are inconsistent about exposing `/health`. Older versions only have `/v1/models`. Rather than pinning to a specific SGLang version, the provider tries `/health` first (fast path) and falls back to `/v1/models`. Works across SGLang upgrades without changes.
 
@@ -298,12 +343,33 @@ def run_eval(provider: InferenceProvider, prompts: list, max_prompts: int = 50) 
         "p95_latency_ms": round(sorted(latencies)[int(len(latencies) * 0.95)], 1),
         "tokens_per_second": round(total_tokens / (total_latency_ms / 1000), 1),
         "errors": [r["error"] for r in failed[:5]],  # cap at 5 to avoid huge output
+        "results": results,
     }
 ```
 
 The `max_prompts=50` cap prevents the burn-in from running for hours on large datasets. Fifty prompts is enough to get stable latency percentiles while keeping total burn-in time under 15 minutes even for large models. The error list is capped at 5 entries because a server that is failing tends to fail the same way every time, and hundreds of identical error strings waste log space.
 
 The metrics chosen (tokens/s, avg, p50, p95 latency) match what you would monitor in production serving. P50 vs P95 divergence reveals whether the server has a long-tail latency problem (e.g., KV cache eviction, PagedAttention recomputation).
+
+The `results` list is returned alongside the aggregate metrics. Full per-prompt responses are written to a JSONL file for review:
+
+```python
+if eval_results and eval_results.get("results"):
+    responses_path = f"{RESULTS_DIR}/{NODE_NAME}-responses.jsonl"
+    with open(responses_path, "w") as f:
+        for r in eval_results["results"]:
+            json.dump({
+                "index": r["index"],
+                "prompt": r.get("prompt", ""),
+                "response": r.get("full_response", ""),
+                "expected": r.get("expected", ""),
+                "tokens": r.get("tokens", 0),
+                "latency_ms": r.get("latency_ms", 0),
+            }, f)
+            f.write("\n")
+```
+
+This JSONL output enables post-hoc analysis of model quality -- reviewers can check whether responses are coherent, correctly formatted, and match expected answers.
 
 ## Verdict Logic
 
@@ -355,6 +421,10 @@ The S3 client uses adaptive retry mode, which automatically adjusts retry behavi
 | `BURNIN_PROVIDER` | Env / ConfigMap | `vllm` |
 | `BURNIN_MODEL` | Env / ConfigMap | (none -- must be set) |
 | `BURNIN_EVAL_DATASET` | Env / ConfigMap | (none -- falls back to hardcoded prompts) |
+| `VLLM_TP_SIZE` | Env | `min(num_gpus, 4)` |
+| `SGLANG_TP_SIZE` | Env | `min(num_gpus, 4)` |
+| `VLLM_EXTRA_ARGS` | Env | (none) |
+| `BURNIN_NODES` | Env | `1` |
 | `s3_bucket` | ConfigMap | (none -- upload skipped if unset) |
 | `s3_endpoint` | ConfigMap | (none -- defaults to AWS) |
 

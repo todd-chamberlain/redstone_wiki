@@ -9,7 +9,7 @@ Master sequencer that runs all preflight phases, waits for completion, and aggre
 | **File** | `orchestrator.py` |
 | **Lines** | ~1119 |
 | **Depends on** | [tracing](tracing.md), [configmap](../patterns/configmap-thresholds.md) |
-| **Runs as** | Job on CPU node (`orchestrator-job.yaml`) |
+| **Runs as** | Job on GPU node (`orchestrator-job.yaml`) -- runs on GPU nodes for image caching, does not request GPU resources |
 
 ---
 

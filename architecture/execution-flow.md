@@ -53,7 +53,7 @@ For clusters in eu-north1, [`make build-remote`](../infrastructure/makefile.md) 
 
 1. **Deploy GPU health DaemonSet** — [`gpu-health-daemonset.yaml`](../infrastructure/kubernetes-manifests.md) runs [`gpu_health.py`](../components/gpu-health.md) on every GPU node
 2. **Wait for health results** — poll for restart count (DaemonSet pods write results then exit)
-3. **Launch orchestrator** — [`orchestrator-job.yaml`](../infrastructure/kubernetes-manifests.md) runs on a CPU node
+3. **Launch orchestrator** — [`orchestrator-job.yaml`](../infrastructure/kubernetes-manifests.md) runs on a GPU node (for image caching, no GPU resources requested)
 
 #### Orchestrator Reconciliation Loop
 

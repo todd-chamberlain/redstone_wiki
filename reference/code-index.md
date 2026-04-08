@@ -8,31 +8,31 @@ For the raw source files, see `redstone/docker/scripts/` in the submodule.
 
 ## orchestrator.py
 
-1119 lines — [full walkthrough](../components/orchestrator.md)
+1135 lines — [full walkthrough](../components/orchestrator.md)
 
 | Symbol | Lines | Description |
 |--------|-------|-------------|
 | `CONFIG_PATH` | 24 | Config file path from env |
-| `get_gpu_nodes` | 52-55 | K8s API: find nodes with `nvidia.com/gpu.present=true` label |
+| `get_gpu_nodes` | 52-56 | K8s API: find nodes with `nvidia.com/gpu.present=true` label |
 | `wait_for_jobs` | 59-73 | Poll K8s jobs until expected count completes or timeout |
 | `wait_for_phase_jobs` | 77-82 | Wrapper: adds `run_id` label filter to `wait_for_jobs` |
 | `read_json_results` | 85-94 | Glob-read JSON result files, skip corrupt |
 | `phase_gpu_health` | 99-139 | Phase 1: poll shared FS for DaemonSet health results |
 | `phase_nccl` | 142-220 | Phase 2: create per-node NCCL jobs, wait, read results |
 | `phase_ib_topology` | 223-408 | Phase 2.5: IB latency probing between all node pairs |
-| `_create_storage_job` | 411-477 | Helper: create fio storage test job for one node |
-| `phase_storage` | 480-553 | Phase 3: storage isolation then contention benchmarks |
-| `phase_tcp` | 556-691 | Phase 4: iperf3 TCP tests between node pairs |
-| `aggregate` | 696-869 | Aggregate all phase results into READY/DEGRADED/NOT_READY verdict |
-| `main` | 879-1056 | Reconciliation loop: discover nodes, run phases, emit verdict |
-| `write_summary` | 1059-1064 | Write summary JSON to results directory |
-| `upload_results_to_s3` | 1067-1114 | Upload run results to S3 for persistence |
+| `_create_storage_job` | 411-485 | Helper: create fio storage test job for one node |
+| `phase_storage` | 488-569 | Phase 3: storage isolation then contention benchmarks |
+| `phase_tcp` | 572-709 | Phase 4: iperf3 TCP tests between node pairs |
+| `aggregate` | 712-893 | Aggregate all phase results into READY/DEGRADED/NOT_READY verdict |
+| `main` | 896-1073 | Reconciliation loop: discover nodes, run phases, emit verdict |
+| `write_summary` | 1076-1081 | Write summary JSON to results directory |
+| `upload_results_to_s3` | 1084-1131 | Upload run results to S3 for persistence |
 
 ---
 
 ## gpu_health.py
 
-452 lines — [full walkthrough](../components/gpu-health.md)
+449 lines — [full walkthrough](../components/gpu-health.md)
 
 | Symbol | Lines | Description |
 |--------|-------|-------------|
@@ -65,28 +65,29 @@ For the raw source files, see `redstone/docker/scripts/` in the submodule.
 
 ## ib_topology.py
 
-357 lines — [full walkthrough](../components/ib-topology.md)
+447 lines — [full walkthrough](../components/ib-topology.md)
 
 | Symbol | Lines | Description |
 |--------|-------|-------------|
-| `run_latency_server` | 48-51 | Start `ib_write_lat` server on specific device/port |
-| `run_latency_client` | 54-85 | Run `ib_write_lat` client, parse average latency |
-| `run_bw_probe` | 88-108 | Quick IB write bandwidth probe per port |
-| `infer_topology` | 111-165 | Analyze latency matrix to infer leaf/spine groupings |
-| `server_mode` | 168-209 | Run latency + BW servers on all ports, signal readiness |
-| `client_mode` | 212-344 | Probe all ports, build latency matrix, infer topology, write results |
-| `main` | 347-352 | Dispatch to server_mode or client_mode based on IB_TOPO_ROLE |
+| `run_latency_server` | 48-52 | Start `ib_send_lat` server on specific device/port |
+| `run_latency_client` | 55-87 | Run `ib_send_lat` client, parse average latency |
+| `run_bw_probe` | 90-111 | Quick IB send bandwidth probe per port |
+| `infer_topology` | 114-168 | Analyze latency matrix to infer leaf/spine groupings |
+| `server_mode` | 171-232 | On-demand signal-based server: start per-port listeners on client request |
+| `client_mode` | 235-435 | Probe all ports via signal protocol, build latency matrix, infer topology, write results |
+| `main` | 438-443 | Dispatch to server_mode or client_mode based on IB_TOPO_ROLE |
 
 ---
 
 ## storage_test.py
 
-185 lines — [full walkthrough](../components/storage-test.md)
+249 lines — [full walkthrough](../components/storage-test.md)
 
 | Symbol | Lines | Description |
 |--------|-------|-------------|
-| `run_fio` | 40-94 | Run a single fio benchmark, parse JSON output |
-| `main` | 97-180 | Run shared FS + local SSD benchmarks, apply thresholds |
+| `_parse_size_mb` | 40-47 | Convert fio size string to megabytes |
+| `run_fio` | 53-136 | Run a single fio benchmark with conditional O_DIRECT and dd pre-creation, parse JSON output |
+| `main` | 139-245 | Run shared FS (cold/warm rand read) + conditional local SSD benchmarks, apply thresholds |
 
 ---
 
@@ -121,18 +122,19 @@ For the raw source files, see `redstone/docker/scripts/` in the submodule.
 
 ## training_burnin.py
 
-534 lines — [full walkthrough](../components/training-burnin.md)
+573 lines — [full walkthrough](../components/training-burnin.md)
 
 | Symbol | Lines | Description |
 |--------|-------|-------------|
-| `InferenceProvider` | 70-133 | Base class: start/stop/health_check/generate/wait_ready |
-| `VLLMProvider` | 135-155 | vLLM: high-throughput batched inference via OpenAI API |
-| `SGLangProvider` | 158-188 | SGLang: RadixAttention runtime |
-| `OllamaProvider` | 191-247 | Ollama: local server for smaller models |
-| `load_eval_dataset` | 259-320 | Load eval prompts from JSONL/JSON/txt files |
-| `run_eval` | 323-374 | Run prompts through provider, collect latency/throughput metrics |
-| `main` | 379-484 | Start provider, load eval, run eval, determine PASS/DEGRADED/FAIL |
-| `upload_results_to_s3` | 494-529 | Upload burn-in results to S3 |
+| `InferenceProvider` | 51-113 | Base class: start/stop/health_check/generate/wait_ready |
+| `VLLMProvider` | 116-147 | vLLM: `vllm serve` CLI, TP from VLLM_TP_SIZE env, extra args support |
+| `SGLangProvider` | 150-181 | SGLang: sys.executable launch, SGLANG_TP_SIZE env |
+| `OllamaProvider` | 184-240 | Ollama: local server for smaller models |
+| `load_eval_dataset` | 252-313 | Load eval prompts from JSONL/JSON/txt files |
+| `run_eval` | 316-369 | Run prompts through provider, collect latency/throughput metrics |
+| `main` | 374-524 | Start provider (or detect external server), load eval, run eval, write JSONL responses |
+| `write_results` | 527-531 | Write summary JSON to results directory |
+| `upload_results_to_s3` | 534-569 | Upload burn-in results to S3 |
 
 ---
 

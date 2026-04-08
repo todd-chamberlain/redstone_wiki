@@ -31,8 +31,8 @@ Base: `pytorch/pytorch:2.11.0-cuda12.8-cudnn9-devel`
 | `all_reduce_perf` | nccl-tests | nccl_test.py, distributed_validate.py |
 | `all_gather_perf` | nccl-tests | nccl_test.py |
 | `reduce_scatter_perf` | nccl-tests | nccl_test.py |
-| `ib_write_lat` | perftest | ib_topology.py |
-| `ib_write_bw` | perftest | ib_topology.py |
+| `ib_send_lat` | perftest | ib_topology.py |
+| `ib_send_bw` | perftest | ib_topology.py |
 | `fio` | apt | storage_test.py |
 | `iperf3` | apt | tcp_test.py (client), orchestrator manifests (server) |
 

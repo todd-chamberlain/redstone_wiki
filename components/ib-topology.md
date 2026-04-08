@@ -20,8 +20,10 @@ The topology is discovered by probing latency and bandwidth between every HCA po
 
 IB performance testing requires two cooperating processes: one listening, one probing. The [Orchestrator](orchestrator.md) creates two Kubernetes jobs for each node pair:
 
-1. **Server job** on node A -- starts `ib_write_lat` and `ib_write_bw` listeners on all 8 HCA ports
+1. **Server job** on node A -- waits for client requests and starts `ib_send_lat` and `ib_send_bw` listeners on demand
 2. **Client job** on node B -- connects to each port, measures latency and bandwidth, builds the matrix
+
+The code uses `ib_send_lat` and `ib_send_bw` (send/recv semantics) instead of `ib_write_lat`/`ib_write_bw` (RDMA write semantics). Send/recv works on Nebius passthrough NICs where RDMA write may not be available.
 
 The role is selected via the `IB_TOPO_ROLE` environment variable:
 
@@ -44,44 +46,75 @@ def main():
 
 ---
 
-## Server Mode and the Readiness Signal
+## Server Mode: On-Demand Signal-Based Coordination
 
-The server starts listeners on two port ranges: latency servers on ports `BASE_PORT` through `BASE_PORT + 7`, and bandwidth servers on ports `BASE_PORT + 100` through `BASE_PORT + 107`. Each listener binds to a specific Mellanox device (`mlx5_0` through `mlx5_7`):
+Rather than pre-launching all latency and bandwidth servers upfront (which risks port binding conflicts and resource waste), the server mode uses a signal-based protocol coordinated through the shared filesystem. The server waits for client requests and spins up per-port listeners on demand:
 
 ```python
 def server_mode():
-    servers = []
-    bw_servers = []
-    try:
-        for i in range(NUM_PORTS):
-            dev = f"mlx5_{i}"
-            port = BASE_PORT + i
-            proc = run_latency_server(dev, port)
-            servers.append(proc)
+    """Run per-port servers on demand, coordinated with client via shared FS."""
+    print(f"[{NODE_NAME}] IB server: waiting for client requests...")
+    signal_dir = f"{RESULTS_DIR}/signals"
+    os.makedirs(signal_dir, exist_ok=True)
 
-        for i in range(NUM_PORTS):
-            dev = f"mlx5_{i}"
-            port = BASE_PORT + 100 + i
-            cmd = ["ib_write_bw", "-d", dev, "-p", str(port),
-                   "-D", "5", "--report_gbits", "-q", "4"]
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            bw_servers.append(proc)
+    # Signal that we're ready to accept requests
+    ready_file = f"{RESULTS_DIR}/server-ready-{NODE_NAME}-{RUN_ID}"
+    with open(ready_file, "w") as f:
+        f.write(f"{NODE_NAME}\n")
+    print(f"[{NODE_NAME}] Server ready (signaled via {ready_file})")
 
-        # Signal readiness via shared filesystem
-        ready_file = f"{RESULTS_DIR}/server-ready-{NODE_NAME}-{RUN_ID}"
-        with open(ready_file, "w") as f:
-            f.write(f"{NODE_NAME}\n")
+    served = 0
+    total_expected = NUM_PORTS * 2  # latency + BW per port
+
+    while served < total_expected:
+        # Check for client requests: "request-lat-0", "request-bw-0", etc.
+        for kind in ("lat", "bw"):
+            for i in range(NUM_PORTS):
+                req_file = f"{signal_dir}/request-{kind}-{i}"
+                ack_file = f"{signal_dir}/ack-{kind}-{i}"
+                done_file = f"{signal_dir}/done-{kind}-{i}"
+
+                if os.path.exists(req_file) and not os.path.exists(ack_file):
+                    dev = f"mlx5_{i}"
+                    port = BASE_PORT + i if kind == "lat" else BASE_PORT + 100 + i
+
+                    if kind == "lat":
+                        cmd = ["ib_send_lat", "-d", dev, "-p", str(port), "-D", "60", "-n", "1000", "-F"]
+                    else:
+                        cmd = ["ib_send_bw", "-d", dev, "-p", str(port), "-D", "60", "--report_gbits", "-n", "1000", "-F"]
+
+                    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    time.sleep(1)  # let it bind
+
+                    # Signal that server is listening
+                    with open(ack_file, "w") as f:
+                        f.write("ready\n")
+
+                    # Wait for client to finish (it writes done file) or timeout
+                    for _ in range(30):
+                        if os.path.exists(done_file):
+                            break
+                        time.sleep(2)
+
+                    proc.kill()
+                    served += 1
 ```
 
-The client cannot connect until the server is listening. Rather than using a fixed sleep (fragile and wasteful), the server writes a sentinel file to the shared filesystem.
+The protocol uses three signal files per port per test type:
 
-The file path includes the `RUN_ID` to prevent stale signals. Without the run ID, a ready file from a previous test run could trick a new client into connecting to a server that no longer exists. Each test run has its own unique signal file, and stale files from old runs are ignored.
+1. **`request-{kind}-{i}`** -- written by the client to ask for a server on port `i`
+2. **`ack-{kind}-{i}`** -- written by the server after the listener is bound
+3. **`done-{kind}-{i}`** -- written by the client after the probe completes
+
+This handshake ensures the server is actually listening before the client tries to connect, and the server can kill the listener once the client is done. Each listener only runs for the duration of a single probe, freeing the port for the next test.
+
+The server also watches for client result files and exits early if it detects them, preventing indefinite hanging.
 
 ---
 
 ## Client Mode: Building the Latency Matrix
 
-The client waits for the server's ready signal, then probes each port sequentially. It builds a latency matrix by running `ib_write_lat` against each device:
+The client waits for the server's ready signal, then probes each port sequentially using the same request/ack/done signal protocol:
 
 ```python
 def client_mode():
@@ -101,13 +134,13 @@ The wait loop polls every 2 seconds for up to 60 seconds. If the signal never ap
 
 ### Latency Probing
 
-Each latency probe runs `ib_write_lat` with 1000 iterations over 3 seconds. The parser extracts the average latency from perftest's tabular output:
+Each latency probe runs `ib_send_lat` with 1000 iterations over 5 seconds. The `-F` flag enables unsorted completion processing for better throughput. The parser extracts the average latency from perftest's tabular output:
 
 ```python
 def run_latency_client(device: str, port: int, server_ip: str) -> dict:
     cmd = [
-        "ib_write_lat", "-d", device, "-p", str(port),
-        "-D", "3", "-n", "1000", server_ip
+        "ib_send_lat", "-d", device, "-p", str(port),
+        "-D", "5", "-n", "1000", "-F", server_ip
     ]
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -129,22 +162,25 @@ def run_latency_client(device: str, port: int, server_ip: str) -> dict:
                     except (ValueError, IndexError):
                         continue
 
-        return {"device": device, "latency_us": -1, "error": "parse_failed"}
+        stderr = result.stderr[:200] if result.stderr else ""
+        return {"device": device, "latency_us": -1, "error": "parse_failed", "raw": output[:200], "stderr": stderr}
     except subprocess.TimeoutExpired:
         return {"device": device, "latency_us": -1, "error": "timeout"}
+    except Exception as e:
+        return {"device": device, "latency_us": -1, "error": str(e)}
 ```
 
-Perftest output has header lines starting with `#` or `-`, then one data line with the results. The third column (`parts[2]`) is `t_avg[usec]` -- average latency in microseconds.
+Perftest output has header lines starting with `#` or `-`, then one data line with the results. The third column (`parts[2]`) is `t_avg[usec]` -- average latency in microseconds. On parse failure, the error result now includes the first 200 characters of stderr, which helps diagnose issues like missing IB devices or permission errors.
 
 ### Bandwidth Probing
 
-After latency, the client probes bandwidth on each port using `ib_write_bw` with 4 queue pairs (QPs). Multiple QPs are necessary because a single QP cannot saturate a 400 Gb/s NDR link -- the protocol overhead per operation limits single-QP throughput. Using 4 QPs lets the NIC pipeline enough operations to approach line rate:
+After latency, the client probes bandwidth on each port using `ib_send_bw` with 1000 iterations. Unlike the old approach that used 4 queue pairs (`-q 4`), the current code uses a single QP with `-n 1000 -F` flags. The `-F` flag enables unsorted completions for more realistic throughput measurement:
 
 ```python
 def run_bw_probe(device: str, port: int, server_ip: str) -> dict:
     cmd = [
-        "ib_write_bw", "-d", device, "-p", str(port),
-        "-D", "3", "--report_gbits", "-q", "4", server_ip
+        "ib_send_bw", "-d", device, "-p", str(port),
+        "-D", "5", "--report_gbits", "-n", "1000", "-F", server_ip
     ]
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -158,7 +194,8 @@ def run_bw_probe(device: str, port: int, server_ip: str) -> dict:
                         return {"device": device, "bw_gbps": bw}
                     except (ValueError, IndexError):
                         continue
-        return {"device": device, "bw_gbps": -1, "error": "parse_failed"}
+        stderr = result.stderr[:200] if result.stderr else ""
+        return {"device": device, "bw_gbps": -1, "error": "parse_failed", "stderr": stderr}
     except Exception as e:
         return {"device": device, "bw_gbps": -1, "error": str(e)}
 ```

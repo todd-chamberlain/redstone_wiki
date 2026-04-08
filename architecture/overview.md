@@ -146,7 +146,7 @@ All scripts live in `docker/scripts/` and share:
 
 | Script | Purpose | Runs As | Wiki Page |
 |--------|---------|---------|-----------|
-| `orchestrator.py` | Sequences phases, aggregates verdict | Job (CPU node) | [Orchestrator](../components/orchestrator.md) |
+| `orchestrator.py` | Sequences phases, aggregates verdict | Job (GPU node, no GPU resources) | [Orchestrator](../components/orchestrator.md) |
 | `gpu_health.py` | Per-GPU driver/CUDA/matmul checks | DaemonSet (GPU nodes) | [GPU Health](../components/gpu-health.md) |
 | `nccl_test.py` | NCCL collective bandwidth (NVSwitch) | Job (per GPU node) | [NCCL Test](../components/nccl-test.md) |
 | `ib_topology.py` | IB fat tree latency mapping | Job (server + client) | [IB Topology](../components/ib-topology.md) |

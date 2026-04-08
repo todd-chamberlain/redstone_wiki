@@ -17,7 +17,7 @@ Cluster provisioning using the Nebius k8s-training solution library module.
 `main.tf` L8-L56 wraps the upstream `nebius/nebius-solutions-library/k8s-training` module:
 
 - **GPU nodes**: Configurable count, preset (`8gpu-128vcpu-1600gb`), platform (`gpu-h200-sxm`)
-- **CPU nodes**: For system workloads (orchestrator runs here)
+- **CPU nodes**: For system workloads
 - **InfiniBand**: Fabric selection (`fabric-7` for H200 in eu-north1)
 - **Shared filestore**: 2TB, 4KB block size
 - **Observability**: Nebius o11y agent, Prometheus, Grafana

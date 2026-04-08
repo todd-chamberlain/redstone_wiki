@@ -11,7 +11,7 @@ See [ConfigMap Thresholds](../patterns/configmap-thresholds.md) for the design r
 | Threshold | Default | Terraform Variable | ConfigMap Key | Code Location |
 |-----------|---------|-------------------|---------------|---------------|
 | GPU temperature | 85 C | `gpu_temperature_threshold_c` | `gpu_temperature_threshold_c` | [GPU Health](../components/gpu-health.md) |
-| Matmul TFLOPS | 900 | `matmul_tflops_threshold` | `matmul_tflops_threshold` | [GPU Health](../components/gpu-health.md) |
+| Matmul TFLOPS | 700 | `matmul_tflops_threshold` | `matmul_tflops_threshold` | [GPU Health](../components/gpu-health.md) |
 | Expected GPU count | 8 | `expected_gpu_count` | `expected_gpu_count` | [GPU Health](../components/gpu-health.md) |
 
 ## Version Compatibility Matrix
@@ -26,6 +26,7 @@ Defined in `compatibility_matrix`, consumed in [`gpu_health.py`](../components/g
 | `cuda_max_major` | 13 | same |
 | `pytorch_min` | `2.0` | [GPU Health](../components/gpu-health.md) |
 | `nccl_min_major` | 2 | [GPU Health](../components/gpu-health.md) |
+| `cudnn_min_major` | 8 | [GPU Health](../components/gpu-health.md) |
 
 ## NCCL Intra-Node Thresholds
 
@@ -41,8 +42,8 @@ Per-collective thresholds for single-node NVSwitch bandwidth.
 
 | Threshold | Default | Terraform Variable | ConfigMap Key | Code |
 |-----------|---------|-------------------|---------------|------|
-| IB write bandwidth | 390 Gb/s | `ib_bw_gbps_threshold` | `ib_bw_gbps_threshold` | [IB Topology](../components/ib-topology.md) |
-| IB write latency | 5 us | `ib_latency_us_threshold` | `ib_latency_us_threshold` | [IB Topology](../components/ib-topology.md) |
+| IB send bandwidth | 390 Gb/s | `ib_bw_gbps_threshold` | `ib_bw_gbps_threshold` | [IB Topology](../components/ib-topology.md) |
+| IB send latency | 5 us | `ib_latency_us_threshold` | `ib_latency_us_threshold` | [IB Topology](../components/ib-topology.md) |
 | Multi-node NCCL | 450 GB/s | `nccl_multinode_bw_gbps_threshold` | `nccl_multinode_bw_gbps_threshold` | [`preflight-config.tf` L58](../infrastructure/terraform.md) |
 
 ## Storage Thresholds
@@ -51,7 +52,10 @@ Per-collective thresholds for single-node NVSwitch bandwidth.
 |-----------|---------|-------------------|---------------|------|
 | Seq read BW | 500 MB/s | `storage_seq_read_mbps` | `storage_seq_read_mbps` | [Storage Test](../components/storage-test.md) |
 | Seq write BW | 400 MB/s | `storage_seq_write_mbps` | `storage_seq_write_mbps` | [Storage Test](../components/storage-test.md) |
-| Random read IOPS | 5000 | `storage_rand_read_iops` | `storage_rand_read_iops` | [Storage Test](../components/storage-test.md) |
+| Random read cold IOPS | 1500 | `storage_rand_read_cold_iops` | `storage_rand_read_cold_iops` | [Storage Test](../components/storage-test.md) |
+| Random read warm IOPS | 5000 | `storage_rand_read_warm_iops` | `storage_rand_read_warm_iops` | [Storage Test](../components/storage-test.md) |
+| Local SSD seq read | 500 MB/s | `storage_local_seq_read_mbps` | `storage_local_seq_read_mbps` | [Storage Test](../components/storage-test.md) |
+| Local SSD seq write | 400 MB/s | `storage_local_seq_write_mbps` | `storage_local_seq_write_mbps` | [Storage Test](../components/storage-test.md) |
 | Contention max | 50% | `storage_contention_max_pct` | `storage_contention_max` | [Orchestrator](../components/orchestrator.md) |
 
 ## TCP Threshold
