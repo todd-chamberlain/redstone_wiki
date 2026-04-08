@@ -12,7 +12,7 @@
 | NCCL all_reduce | 481 GB/s | 481 GB/s |
 | Storage seq write | 488 MB/s | 479 MB/s |
 | Storage contention | 4.6% | 5.6% |
-| IB latency | 2.78 us (same leaf) | — |
+| IB latency | 2.78 us (1 of 8 ports) | — |
 | TCP | — | 56.18 Gb/s |
 | Burn-in (TP=4 PP=2 Ray) | 86.6 tok/s | 50/50 prompts |
 
