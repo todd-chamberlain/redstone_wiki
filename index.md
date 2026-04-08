@@ -58,25 +58,11 @@ Design decisions and rationale.
 | [Poll-Based Orchestration](patterns/poll-based-orchestration.md) | Why no Argo, reconciliation loop design |
 | [Multi-Provider Inference](patterns/multi-provider-inference.md) | vLLM / SGLang / Ollama abstraction |
 
-## Results
+## Results — READY
 
-Measured performance from actual preflight runs — broken down by stack layer.
+**[Results](results.md)** | **[Final Run Detail](results/final-run.md)**
 
-| Page | Verdict | Detail |
-|------|---------|--------|
-| **[Results Overview](results.md)** | **READY** | Final run passes all phases |
-| **[Final Run (20260408)](results/final-run.md)** | **READY** | GPU, NCCL, IB, storage contention, TCP, burn-in — all pass |
-| [GPU Health](results/gpu-health.md) | PASS | 758/770 TFLOPS (threshold 700) |
-| [NCCL Fabric](results/nccl-fabric.md) | PASS | all_reduce 481 GB/s per node |
-| [InfiniBand](results/infiniband.md) | PARTIAL | 2.78 us latency captured, same leaf confirmed |
-| [Storage](results/storage.md) | PASS | Contention 4.6% / 5.6% |
-| [TCP Network](results/tcp-network.md) | PASS | 56.18 Gb/s |
-| [LLM Burn-in](results/burnin.md) | PASS | 86.6 tok/s (16 GPU TP4+PP2), 170 tok/s (8 GPU) |
-| [Model Staging](results/model-staging.md) | VALIDATED | 3.4 TB across 5 frontier models + 12 eval datasets |
-| [Distributed 16-GPU](results/distributed-16gpu.md) | OPTIMAL | NCCL 482 GB/s cross-node, TP scaling 85.1% |
-| [Pipeline Parallel](results/pipeline-parallel.md) | OPTIMAL | PP bubble 5.2%, hybrid 7.2% |
-| [Probe Logs](results/probe-logs.md) | | Raw hardware inventory from GPU nodes |
-| **[Open Items + Next Steps](results.md#open-items)** | | What we proved, what we caught, what's next |
+NCCL 481 GB/s, TP scaling 85.1%, storage contention under 6%, burn-in 86.6 tok/s. [Per-layer breakdowns](results.md).
 
 ## Reference
 
