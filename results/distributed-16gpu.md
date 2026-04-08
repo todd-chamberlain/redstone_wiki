@@ -19,6 +19,6 @@ The cross-node NCCL 16-GPU bus bandwidth (481.72 GB/s) slightly exceeded the int
 
 TP scaling ratio of 85.1% means cross-node TP=16 retains 85% of the per-GPU throughput compared to intra-node TP=8. The 15% loss comes from IB round-trip latency on the all-reduce, not bandwidth limitation.
 
-**Verdict: PASS** — all tests OPTIMAL
+**Verdict: PASS** — RDMA PASS, NCCL and TP scaling OPTIMAL
 
 [Back to Results](../results.md)

@@ -19,6 +19,6 @@ Source: [distributed-8gpu-pp.json](../results-data/distributed-8gpu-pp.json) | R
 
 Both bubble overheads well below the 10% OPTIMAL threshold. The hybrid overhead (7.2%) is slightly higher than pure PP (5.2%) because each stage now includes a TP all-reduce in addition to compute.
 
-**Verdict: PASS** — all tests OPTIMAL
+**Verdict: PASS** — RDMA PASS, NCCL/PP/Hybrid OPTIMAL
 
 [Back to Results](../results.md)
