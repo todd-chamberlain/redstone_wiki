@@ -63,6 +63,7 @@ Model: Qwen3-Coder-Next 80B (159 GB). Provider: vLLM. Eval: arena-hard. 50/50 al
 
 | Item | Next Action |
 |------|-------------|
+| DCGM exporter disabled | GPU Operator ClusterPolicy has `dcgmExporter.enabled: false`. No GPU metrics in Prometheus/Grafana. Fix: `kubectl patch clusterpolicy cluster-policy --type=merge -p '{"spec":{"dcgmExporter":{"enabled":true}}}'`. Added to Makefile `enable-rdma` target but not yet verified on a live cluster. GPU health data collected via `gpu_health.py` (nvidia-smi + OTel) — unaffected. |
 | IB perftest (7/8 ports timed out) | Increase server timeout or parallelize probes |
 | Cross-node PP 60.5% bubble | Test with 16-32 microbatches |
 | 4 larger models not served | GLM-5 (1.5 TB) needs all 16 GPUs |
