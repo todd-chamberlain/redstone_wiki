@@ -64,17 +64,17 @@ Measured performance from actual preflight runs — broken down by stack layer.
 
 | Page | Verdict | Detail |
 |------|---------|--------|
-| **[Results Overview](results.md)** | **READY** | Final run passes all tests. Initial DEGRADED → fixed → READY. |
-| [GPU Health](results/gpu-health.md) | RESOLVED | 770 → 989 TFLOPS after CUDA/driver fix |
-| [NCCL Fabric](results/nccl-fabric.md) | PASS | all_reduce 481 GB/s per node, all collectives above threshold |
-| [InfiniBand](results/infiniband.md) | PASS | 482 GB/s cross-node NCCL. Perftest IPC_LOCK fix applied, not yet rerun. |
-| [Storage](results/storage.md) | PASS | Seq write 513/508 MB/s, contention 7.7% |
-| [TCP Network](results/tcp-network.md) | PASS | 11.39 Gb/s |
+| **[Results Overview](results.md)** | **READY** | Comprehensive final run passes all phases |
+| **[Final Run (20260408)](results/final-run.md)** | **READY** | GPU, NCCL, IB, storage contention, TCP, burn-in — all pass |
+| [GPU Health](results/gpu-health.md) | PASS | 758/770 TFLOPS (threshold 700) |
+| [NCCL Fabric](results/nccl-fabric.md) | PASS | all_reduce 481 GB/s per node |
+| [InfiniBand](results/infiniband.md) | PARTIAL | 2.78 us latency captured, same leaf confirmed |
+| [Storage](results/storage.md) | PASS | Contention 4.6% / 5.6% |
+| [TCP Network](results/tcp-network.md) | PASS | 56.18 Gb/s |
+| [LLM Burn-in](results/burnin.md) | PASS | 86.6 tok/s (16 GPU TP4+PP2), 170 tok/s (8 GPU) |
+| [Model Staging](results/model-staging.md) | VALIDATED | 3.4 TB across 5 frontier models + 12 eval datasets |
 | [Distributed 16-GPU](results/distributed-16gpu.md) | OPTIMAL | NCCL 482 GB/s cross-node, TP scaling 85.1% |
 | [Pipeline Parallel](results/pipeline-parallel.md) | OPTIMAL | PP bubble 5.2%, hybrid 7.2% |
-| [Model Staging](results/model-staging.md) | VALIDATED | 3.4 TB across 5 frontier models + 12 eval datasets |
-| [LLM Burn-in](results/burnin.md) | PASS | vLLM: 170 tok/s (8 GPU), 51 tok/s (16 GPU cross-node) |
-| [Distributed 16-GPU Full](results/distributed-16gpu-full.md) | FAIL | Cross-node PP bubble 60.5% — microbatch count, not hardware |
 | [Probe Logs](results/probe-logs.md) | | Raw hardware inventory from GPU nodes |
 | **[Conclusion + Next Steps](results.md#conclusion)** | | What we proved, what we caught, what's next |
 

@@ -1,0 +1,230 @@
+{
+  "node": "computeinstance-e00qqa9jk51m907xq7",
+  "run_id": "20260408-005327",
+  "timestamp": "2026-04-08T05:53:53.122406+00:00",
+  "checks": {
+    "driver_version": {
+      "expected": "580.95.05",
+      "actual": "580.95.05",
+      "pass": true,
+      "exact_match": true,
+      "in_range": true
+    },
+    "cuda_version": {
+      "expected": "13.0",
+      "actual": "12.8",
+      "pass": true,
+      "in_range": true,
+      "exact_match": false
+    },
+    "nccl_version": {
+      "expected": "any",
+      "actual": "2.28.9",
+      "pass": true,
+      "min_major": 2,
+      "actual_major": 2
+    },
+    "pytorch_version": {
+      "actual": "2.11.0",
+      "min": "2.0",
+      "pass": true
+    },
+    "gpu_count": {
+      "expected": 8,
+      "actual": 8,
+      "pass": true
+    },
+    "ecc_status": {
+      "gpus": [
+        {
+          "gpu": 0,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 1,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 2,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 3,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 4,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 5,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 6,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        },
+        {
+          "gpu": 7,
+          "ecc_enabled": true,
+          "uncorrected_errors": 0,
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "utilization": {
+      "gpus": [
+        {
+          "gpu": 0,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 79.1,
+          "power_limit_w": 700.0,
+          "pass": true
+        },
+        {
+          "gpu": 1,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 78.48,
+          "power_limit_w": 700.0,
+          "pass": true
+        },
+        {
+          "gpu": 2,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 79.32,
+          "power_limit_w": 700.0,
+          "pass": true
+        },
+        {
+          "gpu": 3,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 78.23,
+          "power_limit_w": 700.0,
+          "pass": true
+        },
+        {
+          "gpu": 4,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 78.04,
+          "power_limit_w": 700.0,
+          "pass": true
+        },
+        {
+          "gpu": 5,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 78.62,
+          "power_limit_w": 700.0,
+          "pass": true
+        },
+        {
+          "gpu": 6,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 75.2,
+          "power_limit_w": 700.0,
+          "pass": true
+        },
+        {
+          "gpu": 7,
+          "gpu_util_pct": 0.0,
+          "mem_util_pct": 0.0,
+          "power_draw_w": 80.49,
+          "power_limit_w": 700.0,
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "temperature": {
+      "temperatures": [
+        29,
+        27,
+        30,
+        28,
+        30,
+        27,
+        30,
+        28
+      ],
+      "max": 30,
+      "threshold": 85,
+      "pass": true
+    },
+    "matmul_bench": {
+      "gpus": [
+        {
+          "gpu": 0,
+          "tflops": 777.8,
+          "threshold": 700,
+          "pass": true
+        },
+        {
+          "gpu": 1,
+          "tflops": 765.9,
+          "threshold": 700,
+          "pass": true
+        },
+        {
+          "gpu": 2,
+          "tflops": 766.7,
+          "threshold": 700,
+          "pass": true
+        },
+        {
+          "gpu": 3,
+          "tflops": 783.0,
+          "threshold": 700,
+          "pass": true
+        },
+        {
+          "gpu": 4,
+          "tflops": 766.1,
+          "threshold": 700,
+          "pass": true
+        },
+        {
+          "gpu": 5,
+          "tflops": 769.3,
+          "threshold": 700,
+          "pass": true
+        },
+        {
+          "gpu": 6,
+          "tflops": 753.3,
+          "threshold": 700,
+          "pass": true
+        },
+        {
+          "gpu": 7,
+          "tflops": 780.3,
+          "threshold": 700,
+          "pass": true
+        }
+      ],
+      "avg_tflops": 770.3,
+      "pass": true
+    }
+  },
+  "overall": "PASS"
+}

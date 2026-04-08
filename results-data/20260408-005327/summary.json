@@ -1,0 +1,110 @@
+{
+  "verdict": "READY",
+  "reason": "All tests passed (all nodes on same leaf switch)",
+  "viable_gpus": 16,
+  "healthy_nodes": [
+    "computeinstance-e00njwekpyq1pch2rd",
+    "computeinstance-e00qqa9jk51m907xq7"
+  ],
+  "failed_nodes": [],
+  "degraded_nodes": [],
+  "storage_aggregate": {
+    "shared_fs.seq_read": {
+      "per_node_avg": 5217.1,
+      "cluster_total": 20868.6,
+      "min": 5135.3,
+      "max": 5327.4,
+      "nodes": 4,
+      "per_node": {
+        "computeinstance-e00njwekpyq1pch2rd": 5215.2,
+        "computeinstance-e00qqa9jk51m907xq7": 5135.3
+      }
+    },
+    "shared_fs.seq_write": {
+      "per_node_avg": 471.0,
+      "cluster_total": 1883.9,
+      "min": 451.7,
+      "max": 488.0,
+      "nodes": 4,
+      "per_node": {
+        "computeinstance-e00njwekpyq1pch2rd": 488.0,
+        "computeinstance-e00qqa9jk51m907xq7": 478.6
+      }
+    },
+    "shared_fs.rand_read": {
+      "per_node_avg": 6.8,
+      "cluster_total": 27.4,
+      "min": 6.6,
+      "max": 7.0,
+      "nodes": 4,
+      "per_node": {
+        "computeinstance-e00njwekpyq1pch2rd": 6.9,
+        "computeinstance-e00qqa9jk51m907xq7": 7.0
+      }
+    }
+  },
+  "storage_contention": {
+    "computeinstance-e00njwekpyq1pch2rd": {
+      "isolation_mbps": 488.0,
+      "concurrent_mbps": 465.6,
+      "degradation_pct": 4.6,
+      "pass": true
+    },
+    "computeinstance-e00qqa9jk51m907xq7": {
+      "isolation_mbps": 478.6,
+      "concurrent_mbps": 451.7,
+      "degradation_pct": 5.6,
+      "pass": true
+    }
+  },
+  "nccl_per_node": {
+    "computeinstance-e00njwekpyq1pch2rd": {
+      "overall": "PASS",
+      "collectives": {
+        "all_reduce": {
+          "bus_bw_gbps": 481.26,
+          "pass": true
+        },
+        "all_gather": {
+          "bus_bw_gbps": 362.78,
+          "pass": true
+        },
+        "reduce_scatter": {
+          "bus_bw_gbps": 362.24,
+          "pass": true
+        }
+      }
+    },
+    "computeinstance-e00qqa9jk51m907xq7": {
+      "overall": "PASS",
+      "collectives": {
+        "all_reduce": {
+          "bus_bw_gbps": 481.09,
+          "pass": true
+        },
+        "all_gather": {
+          "bus_bw_gbps": 362.61,
+          "pass": true
+        },
+        "reduce_scatter": {
+          "bus_bw_gbps": 362.56,
+          "pass": true
+        }
+      }
+    }
+  },
+  "ib_topology": {
+    "all_same_leaf": true,
+    "pairs_tested": 1
+  },
+  "remediation": [],
+  "run_id": "20260408-005327",
+  "timestamp": "2026-04-08T06:02:31.454161+00:00",
+  "duration_s": 506.8,
+  "reconcile_count": 1,
+  "validated_nodes": [
+    "computeinstance-e00njwekpyq1pch2rd",
+    "computeinstance-e00qqa9jk51m907xq7"
+  ],
+  "expected_nodes": 2
+}

@@ -1,0 +1,39 @@
+{
+  "node": "computeinstance-e00qqa9jk51m907xq7",
+  "run_id": "20260408-005327",
+  "phase": "isolation",
+  "timestamp": "2026-04-08T05:56:17.601861+00:00",
+  "tests": {
+    "shared_fs.seq_read": {
+      "name": "shared_fs.seq_read",
+      "rw": "read",
+      "bs": "1M",
+      "bw_mbps": 5135.3,
+      "iops": 5135.3,
+      "lat_us": 1556.8,
+      "threshold": 500.0,
+      "pass": true
+    },
+    "shared_fs.seq_write": {
+      "name": "shared_fs.seq_write",
+      "rw": "write",
+      "bs": "1M",
+      "bw_mbps": 478.6,
+      "iops": 478.6,
+      "lat_us": 16622.5,
+      "threshold": 350.0,
+      "pass": true
+    },
+    "shared_fs.rand_read": {
+      "name": "shared_fs.rand_read",
+      "rw": "randread",
+      "bs": "4K",
+      "bw_mbps": 7.0,
+      "iops": 1780.6,
+      "lat_us": 560.3,
+      "threshold": 1500.0,
+      "pass": true
+    }
+  },
+  "overall": "PASS"
+}

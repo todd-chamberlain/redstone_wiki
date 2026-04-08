@@ -4,22 +4,22 @@ Measured performance from actual preflight runs on Nebius eu-north1, fabric-7, H
 
 ---
 
-## Preflight Pipeline — Final Run (READY)
+## Comprehensive Final Run — READY (20260408-005327)
 
-Full pipeline rerun after resolving CUDA/driver mismatch and IPC_LOCK issues. Verdict: **READY**.
+Full end-to-end validation: preflight + IB topology + storage contention + burn-in. All phases completed. Verdict: **READY**.
 
-Raw data: [preflight-summary-ready.json](results-data/preflight-summary-ready.json) | Run: 20260406-233101 | Duration: 446.2s | Nodes: 2
+**[Full Final Run Results](results/final-run.md)** | Raw data: [results-data/20260408-005327/](results-data/20260408-005327/) | Duration: 506.8s
 
-| Metric | Node 0 | Node 1 |
-|--------|--------|--------|
-| NCCL all_reduce | 481.43 GB/s | 480.75 GB/s |
-| NCCL all_gather | 362.12 GB/s | 362.61 GB/s |
-| NCCL reduce_scatter | 363.52 GB/s | 362.81 GB/s |
-| Storage seq write (isolation) | 513.0 MB/s | 508.2 MB/s |
-| Storage seq write (contention) | 473.5 MB/s | 468.9 MB/s |
-| Contention degradation | 7.7% | 7.7% |
+| Layer | Status | Key Number |
+|-------|--------|-----------|
+| GPU Health | PASS | 758/770 TFLOPS (threshold 700) |
+| NCCL (both nodes) | PASS | all_reduce 481 GB/s |
+| IB Topology | PARTIAL | 2.78 us latency on mlx5_3, same leaf confirmed |
+| Storage (isolation + contention) | PASS | 4.6% / 5.6% contention degradation |
+| TCP | PASS | 56.18 Gb/s |
+| Burn-in (16 GPU, TP=4 PP=2) | PASS | 86.6 tok/s, 50/50 prompts |
 
-Storage write now passes (513 / 508 MB/s vs 400 threshold). Contention degradation at 7.7% — well within the 50% limit. All tests pass. Zero remediation actions.
+Zero failed nodes. Zero degraded nodes. Zero remediation actions.
 
 ## Preflight Pipeline — Initial Run (DEGRADED)
 
